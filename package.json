@@ -4,10 +4,11 @@
   "description": "Interactive model selection tool for Claude Code with Synthetic AI models",
   "main": "dist/index.js",
   "bin": {
-    "synclaude": "dist/cli.js"
+    "synclaude": "dist/cli/index.js"
   },
   "scripts": {
     "build": "bash ./scripts/build.sh",
+    "build:tsc": "tsc",
     "dev": "bun src/index.ts",
     "start": "node dist/index.js",
     "test": "bun test",

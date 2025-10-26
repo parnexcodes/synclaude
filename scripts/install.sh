@@ -39,8 +39,20 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Check Bun installation
-check_bun() {
+# Check system dependencies
+check_dependencies() {
+    # Check for Git
+    if ! command_exists git; then
+        error "Git is not installed. Please install Git first."
+        echo "Visit: https://git-scm.com/ or use your package manager:"
+        echo "  macOS: brew install git"
+        echo "  Windows: Download from https://git-scm.com/"
+        echo "  Linux (Ubuntu/Debian): sudo apt-get install git"
+        echo "  Linux (RedHat/CentOS): sudo yum install git"
+        exit 1
+    fi
+
+    # Check for Bun
     if ! command_exists bun; then
         error "Bun is not installed. Please install Bun first."
         echo "Visit: https://bun.sh/ or use the installation command:"
@@ -53,8 +65,10 @@ check_bun() {
         exit 1
     fi
 
-    # Check Bun version (Bun is modern, so we just need any recent version)
+    # Show versions
+    GIT_VERSION=$(git --version)
     BUN_VERSION=$(bun --version)
+    success "Git $GIT_VERSION found"
     success "Bun $BUN_VERSION found"
 }
 
@@ -70,22 +84,30 @@ create_directories() {
 install_package() {
     log "Installing synclaude package..."
 
-    # Install globally using Bun
-    if bun install -g synclaude; then
-        success "synclaude package installed globally"
-    else
-        warn "Global installation failed, trying local installation..."
+    # Clean up any existing installation
+    rm -rf "$INSTALL_DIR"
+    mkdir -p "$INSTALL_DIR"
 
-        # Fallback to local installation
-        cd "$INSTALL_DIR"
-        if bun init -y && bun install synclaude; then
-            log "Creating symlink in $BIN_DIR..."
-            ln -sf "$INSTALL_DIR/node_modules/.bin/synclaude" "$BIN_DIR/synclaude"
-            success "Local installation completed"
+    # Clone repository and build locally
+    cd "$INSTALL_DIR"
+    log "Cloning synclaude repository..."
+    if git clone "$REPO_URL" .; then
+        success "Repository cloned successfully"
+
+        log "Installing dependencies and building..."
+        if bun install && bun run build; then
+            # Create global symlink
+            log "Creating executable symlink..."
+            ln -sf "$INSTALL_DIR/dist/cli/index.js" "$BIN_DIR/synclaude"
+            chmod +x "$BIN_DIR/synclaude"
+            success "Installation completed successfully"
         else
-            error "Failed to install synclaude package"
+            error "Failed to install dependencies or build project"
             exit 1
         fi
+    else
+        error "Failed to clone repository"
+        exit 1
     fi
 }
 
@@ -175,7 +197,7 @@ main() {
     log "Installing synclaude..."
 
     # Pre-installation checks
-    check_bun
+    check_dependencies
     create_directories
 
     # Installation
