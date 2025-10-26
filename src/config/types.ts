@@ -19,10 +19,6 @@ export const AppConfigSchema = z.object({
   firstRunCompleted: z.boolean()
     .default(false)
     .describe('Whether first-time setup has been completed'),
-  autoUpdateCheck: z.boolean()
-    .default(true)
-    .describe('Automatically check for updates'),
-  lastUpdateCheck: z.string().default('').describe('Timestamp of last update check'),
 });
 
 export type AppConfig = z.infer<typeof AppConfigSchema>;

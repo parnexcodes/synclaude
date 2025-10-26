@@ -19,8 +19,7 @@ export function createProgram(): Command {
   program
     .option('-m, --model <model>', 'Use specific model (skip selection)')
     .option('-v, --verbose', 'Enable verbose logging')
-    .option('-q, --quiet', 'Suppress non-error output')
-    .option('--no-update-check', 'Disable automatic update check');
+    .option('-q, --quiet', 'Suppress non-error output');
 
   // Main command (launch Claude Code)
   program

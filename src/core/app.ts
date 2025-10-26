@@ -4,14 +4,12 @@ import { ConfigManager } from '../config';
 import { ModelManager } from '../models';
 import { UserInterface } from '../ui';
 import { ClaudeLauncher, LaunchOptions } from '../launcher';
-import { UpdateManager } from '../updater';
 import { ModelInfoImpl } from '../models';
 import { setupLogging, log } from '../utils/logger';
 
 export interface AppOptions {
   verbose?: boolean;
   quiet?: boolean;
-  noUpdateCheck?: boolean;
 }
 
 
@@ -19,7 +17,6 @@ export class SyntheticClaudeApp {
   private configManager: ConfigManager;
   private ui: UserInterface;
   private launcher: ClaudeLauncher;
-  private updater: UpdateManager;
   private modelManager: ModelManager | null = null;
 
   constructor() {
@@ -28,7 +25,6 @@ export class SyntheticClaudeApp {
       verbose: this.configManager.config.apiKey ? this.configManager.config.cacheDurationHours > 0 : false,
     });
     this.launcher = new ClaudeLauncher();
-    this.updater = new UpdateManager();
   }
 
   async setupLogging(options: AppOptions): Promise<void> {
@@ -55,10 +51,8 @@ export class SyntheticClaudeApp {
   async run(options: AppOptions & LaunchOptions): Promise<void> {
     await this.setupLogging(options);
 
-    // Check for updates unless disabled
-    if (!options.noUpdateCheck && this.configManager.config.autoUpdateCheck) {
-      await this.checkForUpdates();
-    }
+    // Note: Updates are now handled manually by users via `npm update -g synclaude`
+    // This eliminates complex update checking and related bugs
 
     // Handle first-time setup
     if (this.configManager.isFirstRun()) {
@@ -168,8 +162,6 @@ export class SyntheticClaudeApp {
     this.ui.info(`Cache Duration: ${config.cacheDurationHours} hours`);
     this.ui.info(`Selected Model: ${config.selectedModel || 'None'}`);
     this.ui.info(`First Run Completed: ${config.firstRunCompleted}`);
-    this.ui.info(`Auto Update Check: ${config.autoUpdateCheck}`);
-    this.ui.info(`Last Update Check: ${config.lastUpdateCheck || 'Never'}`);
   }
 
   async setConfig(key: string, value: string): Promise<void> {
@@ -191,9 +183,6 @@ export class SyntheticClaudeApp {
         break;
       case 'selectedModel':
         updates.selectedModel = value;
-        break;
-      case 'autoUpdateCheck':
-        updates.autoUpdateCheck = value.toLowerCase() === 'true';
         break;
       default:
         this.ui.error(`Unknown configuration key: ${key}`);
@@ -303,17 +292,8 @@ export class SyntheticClaudeApp {
       }
     }
 
-    // Update check
-    try {
-      const updateResult = await this.updater.checkForUpdates();
-      if (updateResult.hasUpdate) {
-        this.ui.warning('Updates: ' + this.updater.formatUpdateMessage(updateResult));
-      } else {
-        this.ui.coloredSuccess('Updates: ' + this.updater.formatUpdateMessage(updateResult));
-      }
-    } catch (error) {
-      this.ui.showStatus('error', `Update check: Failed (${error})`);
-    }
+    // Note: Manual updates via `npm update -g synclaude`
+    this.ui.info('To check for updates, run: npm update -g synclaude');
   }
 
   async clearCache(): Promise<void> {
@@ -375,35 +355,4 @@ export class SyntheticClaudeApp {
     }
   }
 
-  private async checkForUpdates(): Promise<void> {
-    const config = this.configManager.config;
-    const shouldCheck = await this.updater.shouldCheckForUpdates(config.lastUpdateCheck);
-
-    if (!shouldCheck) {
-      return;
-    }
-
-    try {
-      this.ui.info('Checking for updates...');
-      const result = await this.updater.checkForUpdates();
-
-      await this.configManager.updateConfig({ lastUpdateCheck: new Date().toISOString() });
-      await this.updater.saveUpdateCheck(result.versionInfo!);
-
-      if (result.hasUpdate) {
-        this.ui.showStatus('warning', this.updater.formatUpdateMessage(result));
-        const updateNow = await this.ui.confirm('Update now?');
-        if (updateNow) {
-          await this.updater.performUpdate();
-          // performUpdate() will exit the process on successful update
-          return;
-        }
-      } else {
-        // Use coloredSuccess() for better visual appearance without Ink duplication
-        this.ui.coloredSuccess(this.updater.formatUpdateMessage(result));
-      }
-    } catch (error) {
-      log.error('Update check failed:', error);
-    }
-  }
 }
