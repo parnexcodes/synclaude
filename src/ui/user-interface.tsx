@@ -1,5 +1,6 @@
 import { render } from 'ink';
 import React from 'react';
+import chalk from 'chalk';
 import { ModelInfoImpl } from '../models';
 import { ModelSelector } from './components/ModelSelector';
 import { StatusMessage } from './components/StatusMessage';
@@ -29,6 +30,37 @@ export class UserInterface {
   success(message: string, ...args: any[]): void {
     if (!this.quiet) {
       console.log(`✓ ${message}`, ...args);
+    }
+  }
+
+  // Colored success message for important notifications
+  coloredSuccess(message: string, ...args: any[]): void {
+    if (!this.quiet) {
+      console.log(chalk.green(`✓ ${message}`), ...args);
+    }
+  }
+
+  // Colored info message for important notifications
+  coloredInfo(message: string, ...args: any[]): void {
+    if (!this.quiet) {
+      console.log(chalk.blue(`ℹ ${message}`), ...args);
+    }
+  }
+
+  // Highlighted message with colored elements within
+  highlightInfo(message: string, highlights: string[] = []): void {
+    if (!this.quiet) {
+      let output = chalk.blue('ℹ ');
+      let processedMessage = message;
+
+      // Color each highlighted occurrence
+      highlights.forEach(highlight => {
+        const regex = new RegExp(`(${highlight})`, 'g');
+        processedMessage = processedMessage.replace(regex, chalk.cyan('$1'));
+      });
+
+      output += processedMessage;
+      console.log(output);
     }
   }
 

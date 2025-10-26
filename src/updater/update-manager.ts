@@ -27,10 +27,12 @@ export class UpdateManager {
   private readonly versionFile: string;
   private readonly checkUrl: string;
   private readonly currentVersion: string;
+  private static lastSessionCheck: Date | null = null;
+  private static lastSessionResult: UpdateCheckResult | null = null;
 
   constructor(options: UpdateOptions = {}) {
     this.versionFile = join(homedir(), '.config', 'synclaude', 'version.json');
-    this.checkUrl = options.checkUrl || 'https://api.github.com/repos/parnexcodes/synclaude/releases/latest';
+    this.checkUrl = options.checkUrl || 'https://registry.npmjs.org/synclaude/latest';
 
     // Read current version from package.json
     try {
@@ -43,24 +45,45 @@ export class UpdateManager {
   }
 
   async checkForUpdates(): Promise<UpdateCheckResult> {
+    // Check if we already checked in this session (within last 5 minutes)
+    const now = new Date();
+    if (UpdateManager.lastSessionCheck && UpdateManager.lastSessionResult) {
+      const minutesSinceCheck = (now.getTime() - UpdateManager.lastSessionCheck.getTime()) / (1000 * 60);
+      if (minutesSinceCheck < 5) {
+        return UpdateManager.lastSessionResult;
+      }
+    }
+
     try {
       const latestVersionInfo = await this.fetchLatestVersion();
       const hasUpdate = this.compareVersions(this.currentVersion, latestVersionInfo.version) < 0;
 
-      return {
+      const result = {
         hasUpdate,
         currentVersion: this.currentVersion,
         latestVersion: latestVersionInfo.version,
         versionInfo: latestVersionInfo,
       };
+
+      // Cache the result for this session
+      UpdateManager.lastSessionCheck = now;
+      UpdateManager.lastSessionResult = result;
+
+      return result;
     } catch (error) {
       console.error('Failed to check for updates:', error);
-      return {
+      const result = {
         hasUpdate: false,
         currentVersion: this.currentVersion,
         latestVersion: this.currentVersion,
         versionInfo: null,
       };
+
+      // Cache the error result too to prevent repeated failed calls
+      UpdateManager.lastSessionCheck = now;
+      UpdateManager.lastSessionResult = result;
+
+      return result;
     }
   }
 
@@ -69,17 +92,17 @@ export class UpdateManager {
       const response = await axios.get(this.checkUrl, {
         timeout: 10000,
         headers: {
-          'Accept': 'application/vnd.github.v3+json',
+          'Accept': 'application/json',
           'User-Agent': 'synclaude-update-check',
         },
       });
 
       const data = response.data;
       return {
-        version: data.tag_name?.replace(/^v/, '') || '0.0.0',
-        releaseDate: data.published_at || new Date().toISOString(),
-        downloadUrl: data.assets?.[0]?.browser_download_url,
-        changelog: data.body,
+        version: data.version || '0.0.0',
+        releaseDate: new Date().toISOString(),
+        downloadUrl: undefined,
+        changelog: data.description || '',
       };
     } catch (error) {
       // Fallback to local version cache if network fails

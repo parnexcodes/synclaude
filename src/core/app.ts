@@ -78,8 +78,6 @@ export class SyntheticClaudeApp {
   }
 
   async interactiveModelSelection(): Promise<boolean> {
-    log.info('Starting interactive model selection');
-
     if (!this.configManager.hasApiKey()) {
       this.ui.error('No API key configured. Please run "synclaude setup" first.');
       return false;
@@ -87,7 +85,7 @@ export class SyntheticClaudeApp {
 
     try {
       const modelManager = this.getModelManager();
-      this.ui.info('Fetching available models...');
+      this.ui.coloredInfo('Fetching available models...');
       const models = await modelManager.fetchModels();
 
       if (models.length === 0) {
@@ -104,8 +102,8 @@ export class SyntheticClaudeApp {
       }
 
       await this.configManager.setSavedModel(selectedModel.id);
-      this.ui.success(`Model saved: ${selectedModel.getDisplayName()}`);
-      this.ui.info('Now run "synclaude" to start Claude Code with this model.');
+      this.ui.coloredSuccess(`Model saved: ${selectedModel.getDisplayName()}`);
+      this.ui.highlightInfo('Now run "synclaude" to start Claude Code with this model.', ['synclaude']);
       return true;
     } catch (error) {
       this.ui.error(`Error during model selection: ${error}`);
@@ -123,7 +121,7 @@ export class SyntheticClaudeApp {
 
     try {
       const modelManager = this.getModelManager();
-      this.ui.info('Fetching available models...');
+      this.ui.coloredInfo('Fetching available models...');
       const models = await modelManager.fetchModels(options.refresh);
 
       // Sort and display all models
@@ -144,7 +142,7 @@ export class SyntheticClaudeApp {
 
     try {
       const modelManager = this.getModelManager();
-      this.ui.info(`Searching for models matching "${query}"...`);
+      this.ui.coloredInfo(`Searching for models matching "${query}"...`);
       const models = await modelManager.searchModels(query, undefined);
 
       if (models.length === 0) {
@@ -152,7 +150,7 @@ export class SyntheticClaudeApp {
         return;
       }
 
-      this.ui.info(`Found ${models.length} model${models.length === 1 ? '' : 's'} matching "${query}":`);
+      this.ui.coloredInfo(`Found ${models.length} model${models.length === 1 ? '' : 's'} matching "${query}":`);
       this.ui.showModelList(models);
     } catch (error) {
       this.ui.error(`Error searching models: ${error}`);
@@ -223,7 +221,7 @@ export class SyntheticClaudeApp {
   }
 
   async setup(): Promise<void> {
-    this.ui.info('Welcome to Synclaude! Let\'s set up your configuration.');
+    this.ui.coloredInfo('Welcome to Synclaude! Let\'s set up your configuration.');
     this.ui.info('==============================================');
 
     const config = this.configManager.config;
@@ -245,16 +243,16 @@ export class SyntheticClaudeApp {
       return;
     }
 
-    this.ui.success('API key saved');
+    this.ui.coloredSuccess('API key saved');
 
     // Optional: Test API connection
     const testConnection = await this.ui.confirm('Test API connection?', true);
     if (testConnection) {
       try {
         const modelManager = this.getModelManager();
-        this.ui.info('Testing connection...');
+        this.ui.coloredInfo('Testing connection...');
         const models = await modelManager.fetchModels(true);
-        this.ui.success(`Connection successful! Found ${models.length} models`);
+        this.ui.coloredSuccess(`Connection successful! Found ${models.length} models`);
       } catch (error) {
         this.ui.error(`Connection failed: ${error}`);
         return;
@@ -270,8 +268,8 @@ export class SyntheticClaudeApp {
     // Mark first run as completed
     await this.configManager.markFirstRunCompleted();
 
-    this.ui.success('Setup completed successfully!');
-    this.ui.info('You can now run "synclaude" to launch Claude Code');
+    this.ui.coloredSuccess('Setup completed successfully!');
+    this.ui.highlightInfo('You can now run "synclaude" to launch Claude Code', ['synclaude']);
   }
 
   async doctor(): Promise<void> {
@@ -308,8 +306,11 @@ export class SyntheticClaudeApp {
     // Update check
     try {
       const updateResult = await this.updater.checkForUpdates();
-      this.ui.showStatus(updateResult.hasUpdate ? 'warning' : 'success',
-                        'Updates: ' + this.updater.formatUpdateMessage(updateResult));
+      if (updateResult.hasUpdate) {
+        this.ui.warning('Updates: ' + this.updater.formatUpdateMessage(updateResult));
+      } else {
+        this.ui.coloredSuccess('Updates: ' + this.updater.formatUpdateMessage(updateResult));
+      }
     } catch (error) {
       this.ui.showStatus('error', `Update check: Failed (${error})`);
     }
@@ -359,7 +360,7 @@ export class SyntheticClaudeApp {
   }
 
   private async launchClaudeCode(model: string, options: LaunchOptions): Promise<void> {
-    this.ui.info(`Launching with ${model}. Use "synclaude model" to change model.`);
+    this.ui.highlightInfo(`Launching with ${model}. Use "synclaude model" to change model.`, [model, 'synclaude model']);
 
     const result = await this.launcher.launchClaudeCode({
       model,
@@ -396,7 +397,8 @@ export class SyntheticClaudeApp {
           await this.updater.performUpdate();
         }
       } else {
-        this.ui.showStatus('success', 'You\'re using the latest version');
+        // Use coloredSuccess() for better visual appearance without Ink duplication
+        this.ui.coloredSuccess(this.updater.formatUpdateMessage(result));
       }
     } catch (error) {
       log.error('Update check failed:', error);
