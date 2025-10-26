@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Synclaude is a modern TypeScript/Node.js interactive CLI tool that integrates Synthetic AI models with Claude Code. It provides model selection, configuration management, and seamless launching of Claude Code with various language models through synthetic endpoints, eliminating the need for Python virtual environments.
+Synclaude is a modern TypeScript/Node.js interactive CLI tool that integrates Synthetic AI models with Claude Code. It provides model selection, configuration management, and seamless launching of Claude Code with various language models through synthetic endpoints.
 
 ## Development Commands
 

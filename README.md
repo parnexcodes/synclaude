@@ -8,7 +8,7 @@ synclaude is a modern TypeScript/Node.js application that provides a seamless in
 
 ## Features
 
-- **Modern TypeScript Stack**: Built with TypeScript, Node.js, and npm - no Python required
+- **Modern TypeScript Stack**: Built with TypeScript, Node.js, and npm
 - **Interactive Model Selection**: Rich terminal UI for browsing and selecting models
 - **Smart Search**: Search models by name, provider, or capabilities
 - **Persistent Configuration**: Save your preferred model choices
@@ -276,34 +276,6 @@ synclaude config --help
 synclaude doctor
 ```
 
-## Migration from Python Version
-
-If you're migrating from the original Python version:
-
-1. **Uninstall Python version**:
-   ```bash
-   curl -sSL https://raw.githubusercontent.com/parnexcodes/synclaude/main/scripts/uninstall.sh | bash
-   ```
-
-2. **Install TypeScript version**:
-   ```bash
-   curl -sSL https://raw.githubusercontent.com/parnexcodes/synclaude/main/scripts/install.sh | bash
-   ```
-
-3. **Configuration migration**: Your existing configuration will be used automatically, but the location has changed from `synthetic-claude` to `synclaude`.
-
-### Key Differences
-
-| Feature | Python Version | TypeScript Version |
-|---------|----------------|-------------------|
-| Runtime | Python 3.13+ | Node.js 18+ |
-| Package Manager | pip/uv | npm |
-| Installation | Python virtual env | npm package |
-| UI Framework | Rich + Textual | Ink + React |
-| Type Safety | Pydantic | TypeScript + Zod |
-| HTTP Client | requests | axios |
-| Testing | pytest | Jest |
-| Dependencies | ~8 Python packages | ~12 npm packages |
 
 ## Contributing
 
@@ -323,16 +295,6 @@ If you're migrating from the original Python version:
 - Update documentation for API changes
 - Ensure compatibility with Node.js 18+
 
-## Version History
-
-### v1.0.0 (Current)
-- Complete rewrite from Python to TypeScript
-- Modern React-based UI with Ink
-- Improved type safety with Zod validation
-- Better error handling and logging
-- Enhanced installation and update mechanisms
-- Comprehensive test suite
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -343,13 +305,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: [GitHub Wiki](https://github.com/parnexcodes/synclaude/wiki)
 - **Discussions**: [GitHub Discussions](https://github.com/parnexcodes/synclaude/discussions)
 - **Synthetic API**: [https://dev.synthetic.new](https://dev.synthetic.new)
-
-## Acknowledgments
-
-- Original Python version contributors
-- Synthetic API team for the excellent API
-- Claude Code team for the amazing development tool
-- TypeScript and Node.js communities
-- Ink for the excellent React-based terminal UI framework
-- Commander.js for the powerful CLI framework
-- Zod for first-class runtime validation
