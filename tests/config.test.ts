@@ -32,7 +32,6 @@ describe('ConfigManager', () => {
       expect(config.cacheDurationHours).toBe(24);
       expect(config.selectedModel).toBe('');
       expect(config.firstRunCompleted).toBe(false);
-      expect(config.autoUpdateCheck).toBe(true);
     });
 
     it('should save and load configuration', async () => {
@@ -128,8 +127,6 @@ describe('AppConfigSchema validation', () => {
       cacheDurationHours: 24,
       selectedModel: 'test:model',
       firstRunCompleted: true,
-      autoUpdateCheck: true,
-      lastUpdateCheck: '2024-01-01T00:00:00Z',
     };
 
     const result = AppConfigSchema.safeParse(validConfig);
@@ -139,7 +136,6 @@ describe('AppConfigSchema validation', () => {
   it('should reject invalid configuration', () => {
     const invalidConfig = {
       cacheDurationHours: -1, // Invalid: must be >= 1
-      autoUpdateCheck: 'not-a-boolean', // Invalid type
     };
 
     const result = AppConfigSchema.safeParse(invalidConfig);
