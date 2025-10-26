@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "installer_version": "1.0.0",
+  "build_date": "2025-01-26",
+  "repository": "https://github.com/parnexcodes/synclaude",
+  "changelog": "Complete TypeScript rewrite with modern CLI interface, React-based UI, and enhanced type safety"
+}

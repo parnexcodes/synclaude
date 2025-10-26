@@ -1,0 +1,80 @@
+{
+  "name": "synclaude",
+  "version": "1.0.0",
+  "description": "Interactive model selection tool for Claude Code with Synthetic AI models",
+  "main": "dist/index.js",
+  "bin": {
+    "synclaude": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "bash ./scripts/build.sh",
+    "dev": "bun src/index.ts",
+    "start": "node dist/index.js",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "bun run build",
+    "prepublishOnly": "bun test && bun run lint",
+    "preversion": "bun run lint",
+    "version": "bun run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "keywords": [
+    "claude",
+    "anthropic",
+    "synthetic",
+    "ai",
+    "cli",
+    "model-selection",
+    "typescript",
+    "bun"
+  ],
+  "author": "Synclaude Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/parnexcodes/synclaude"
+  },
+  "bugs": {
+    "url": "https://github.com/parnexcodes/synclaude/issues"
+  },
+  "homepage": "https://github.com/parnexcodes/synclaude#readme",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "ink": "^4.4.1",
+    "zod": "^3.22.4",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "@types/node": "^20.9.0",
+    "@types/react": "^18.2.37",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "bun-types": "latest",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.1.0",
+    "react-devtools-core": "^7.0.1",
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "scripts/"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "bun": {
+    "allowJS": true,
+    "strict": true
+  }
+}
