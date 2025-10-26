@@ -1,6 +1,6 @@
 {
   "name": "synclaude",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Interactive model selection tool for Claude Code with Synthetic AI models",
   "main": "dist/index.js",
   "bin": {
