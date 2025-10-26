@@ -163,6 +163,68 @@ export class UserInterface {
     });
   }
 
+  // Ask for password input (masked with asterisks)
+  async askPassword(question: string): Promise<string> {
+    return new Promise((resolve) => {
+      const readline = require('readline');
+
+      // Store original settings
+      const stdin = process.stdin;
+      const stdout = process.stdout;
+      const wasRaw = stdin.isRaw;
+
+      let password = '';
+      stdout.write(`${question}: `);
+
+      // Enable raw mode to capture individual keystrokes
+      stdin.setRawMode(true);
+      stdin.resume();
+      stdin.setEncoding('utf8');
+
+      const onData = (key: string) => {
+        switch (key) {
+          case '\n':
+          case '\r':
+          case '\u0004': // Ctrl+D
+            // Restore original stdin settings
+            stdin.setRawMode(wasRaw);
+            stdin.pause();
+            stdin.removeListener('data', onData);
+            stdout.write('\n');
+            resolve(password);
+            break;
+          case '\u0003': // Ctrl+C
+            // Restore original stdin settings
+            stdin.setRawMode(wasRaw);
+            stdin.pause();
+            stdin.removeListener('data', onData);
+            stdout.write('\n');
+            resolve('');
+            break;
+          case '\u007F': // Backspace (DEL)
+          case '\u0008': // Backspace (BS)
+            if (password.length > 0) {
+              password = password.slice(0, -1);
+              stdout.write('\b \b');
+            }
+            break;
+          default:
+            // Handle multi-character input (like paste) and individual keypresses
+            for (let i = 0; i < key.length; i++) {
+              const char = key[i];
+              // Only accept printable ASCII characters
+              if (char && char >= ' ' && char <= '~') {
+                password += char;
+                stdout.write('*');
+              }
+            }
+        }
+      };
+
+      stdin.on('data', onData);
+    });
+  }
+
   // Confirm action
   async confirm(message: string, defaultValue = false): Promise<boolean> {
     const defaultStr = defaultValue ? 'Y/n' : 'y/N';

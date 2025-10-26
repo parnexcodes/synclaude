@@ -229,7 +229,7 @@ export class SyntheticClaudeApp {
     // Get API key if not set
     let apiKey = config.apiKey;
     if (!apiKey) {
-      apiKey = await this.ui.askQuestion('Enter your Synthetic API key');
+      apiKey = await this.ui.askPassword('Enter your Synthetic API key');
       if (!apiKey) {
         this.ui.error('API key is required');
         return;
