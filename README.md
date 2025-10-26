@@ -50,6 +50,27 @@ bun run build
 bun link
 ```
 
+### Uninstallation
+
+#### Option 1: One-line Uninstaller
+
+```bash
+curl -sSL https://raw.githubusercontent.com/parnexcodes/synclaude/main/scripts/uninstall.sh | bash
+```
+
+#### Option 2: Manual Uninstall
+
+```bash
+# If installed globally via npm
+npm uninstall -g synclaude
+
+# If installed locally via bun link
+bun unlink synclaude
+
+# Remove configuration and cache
+rm -rf ~/.config/synclaude
+```
+
 ### Initial Setup
 
 After installation, run the setup wizard:
