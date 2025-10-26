@@ -38,7 +38,7 @@ export class UpdateManager {
       this.currentVersion = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version;
     } catch (error) {
       // Fallback to hardcoded version if we can't read package.json
-      this.currentVersion = '1.2.0';
+      this.currentVersion = '1.2.1';
     }
   }
 
