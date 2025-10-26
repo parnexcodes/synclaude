@@ -17,9 +17,14 @@ INSTALL_DIR="$HOME/.local/share/synclaude"
 BIN_DIR="$HOME/.local/bin"
 REPO_URL="https://github.com/parnexcodes/synclaude.git"
 
+# Script variables
+VERBOSE="${VERBOSE:-false}"
+PATH_UPDATED="${PATH_UPDATED:-false}"
+PATH_IN_PATH="${PATH_IN_PATH:-false}"
+
 # Helper functions
 log() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 warn() {
@@ -32,6 +37,10 @@ error() {
 
 success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+progress() {
+    echo -n "."
 }
 
 # Check if command exists
@@ -65,24 +74,19 @@ check_dependencies() {
         exit 1
     fi
 
-    # Show versions
-    GIT_VERSION=$(git --version)
-    BUN_VERSION=$(bun --version)
-    success "Git $GIT_VERSION found"
-    success "Bun $BUN_VERSION found"
+ progress
 }
 
 # Create directories
 create_directories() {
-    log "Creating installation directories..."
+    progress
     mkdir -p "$INSTALL_DIR"
     mkdir -p "$BIN_DIR"
-    success "Directories created"
 }
 
 # Install synclaude package
 install_package() {
-    log "Installing synclaude package..."
+    progress
 
     # Clean up any existing installation
     rm -rf "$INSTALL_DIR"
@@ -90,17 +94,13 @@ install_package() {
 
     # Clone repository and build locally
     cd "$INSTALL_DIR"
-    log "Cloning synclaude repository..."
-    if git clone "$REPO_URL" .; then
-        success "Repository cloned successfully"
-
-        log "Installing dependencies and building..."
-        if bun install && bun run build; then
-            # Create global symlink
-            log "Creating executable symlink..."
+    progress
+    if git clone "$REPO_URL" . >/dev/null 2>&1; then
+        progress
+        if bun install >/dev/null 2>&1 && bun run build >/dev/null 2>&1; then
+            progress
             ln -sf "$INSTALL_DIR/dist/cli/index.js" "$BIN_DIR/synclaude"
             chmod +x "$BIN_DIR/synclaude"
-            success "Installation completed successfully"
         else
             error "Failed to install dependencies or build project"
             exit 1
@@ -114,8 +114,6 @@ install_package() {
 # Update PATH
 update_path() {
     if ! echo "$PATH" | grep -q "$BIN_DIR"; then
-        log "Adding $BIN_DIR to PATH..."
-
         # Detect shell and update appropriate config file
         SHELL_NAME=$(basename "$SHELL")
         case "$SHELL_NAME" in
@@ -144,23 +142,19 @@ update_path() {
         esac
 
         if [ -n "$SHELL_CONFIG" ]; then
-            success "Updated $SHELL_CONFIG"
-            warn "Please run 'source $SHELL_CONFIG' or restart your terminal"
+            PATH_UPDATED=true
         fi
     else
-        success "$BIN_DIR is already in PATH"
+        PATH_IN_PATH=true
     fi
 }
 
 # Verify installation
 verify_installation() {
     if command_exists synclaude; then
-        success "synclaude is installed and available"
-        log "Run 'synclaude --help' to get started"
-
-        # Show version
+        progress
         SYNCLAUDE_VERSION=$(synclaude --version 2>/dev/null || echo "unknown")
-        log "Installed version: $SYNCLAUDE_VERSION"
+        VERSION_INSTALLED="$SYNCLAUDE_VERSION"
     else
         error "synclaude command not found after installation"
         error "Please ensure $BIN_DIR is in your PATH"
@@ -168,33 +162,22 @@ verify_installation() {
     fi
 }
 
-# Show next steps
-show_next_steps() {
+# Show final message
+show_final_message() {
     echo ""
-    success "Installation completed!"
+    echo "✓ synclaude installed successfully!"
+
+    if [ "$PATH_UPDATED" = "true" ]; then
+        echo "⚠️  Please restart your terminal or run 'source $SHELL_CONFIG'"
+    fi
+
     echo ""
-    log "Next steps:"
-    echo "1. Run 'synclaude setup' to configure your API key"
-    echo "2. Run 'synclaude' to launch Claude Code with model selection"
-    echo "3. Run 'synclaude --help' to see all available commands"
-    echo ""
-    log "Useful commands:"
-    echo "  synclaude setup            - Initial configuration"
-    echo "  synclaude models            - List available models"
-    echo "  synclaude search <query>    - Search models"
-    echo "  synclaude model             - Interactive model selection"
-    echo "  synclaude doctor            - Check system health"
-    echo ""
+    echo "Run 'synclaude setup' to configure, then 'synclaude' to start."
 }
 
 # Main installation flow
 main() {
-    echo ""
-    echo "Synclaude Installation Script"
-    echo "================================"
-    echo ""
-
-    log "Installing synclaude..."
+    echo -n "Installing synclaude"
 
     # Pre-installation checks
     check_dependencies
@@ -206,9 +189,9 @@ main() {
 
     # Verification
     verify_installation
-    show_next_steps
 
-    success "Installation completed successfully!"
+    echo ""
+    show_final_message
 }
 
 # Handle script arguments
@@ -218,7 +201,8 @@ case "${1:-}" in
         echo "Usage: $0 [options]"
         echo ""
         echo "Options:"
-        echo "  --help, -h    Show this help message"
+        echo "  --help, -h      Show this help message"
+        echo "  --verbose, -v   Show detailed installation output"
         echo ""
         echo "This script will:"
         echo "1. Check for Bun installation"
@@ -226,6 +210,10 @@ case "${1:-}" in
         echo "3. Set up PATH if needed"
         echo "4. Verify the installation"
         exit 0
+        ;;
+    --verbose|-v)
+        VERBOSE=true
+        main
         ;;
     "")
         main
