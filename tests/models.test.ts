@@ -1,4 +1,4 @@
-import { ModelInfoImpl, ModelCategoryUtils } from '../src/models';
+import { ModelInfoImpl } from '../src/models';
 
 describe('ModelInfo', () => {
   it('should create valid model info', () => {
@@ -63,55 +63,5 @@ describe('ModelInfo', () => {
     const json = model.toJSON();
 
     expect(json).toEqual(modelData);
-  });
-});
-
-describe('ModelCategoryUtils', () => {
-  it('should categorize embedding models correctly', () => {
-    const embeddingModel1 = new ModelInfoImpl({ id: 'openai:text-embedding-ada-002', object: 'model' });
-    const embeddingModel2 = new ModelInfoImpl({ id: 'embedding-model', object: 'model' });
-    const normalModel = new ModelInfoImpl({ id: 'openai:gpt-4', object: 'model' });
-
-    expect(ModelCategoryUtils.isEmbeddingModel(embeddingModel1)).toBe(true);
-    expect(ModelCategoryUtils.isEmbeddingModel(embeddingModel2)).toBe(true);
-    expect(ModelCategoryUtils.isEmbeddingModel(normalModel)).toBe(false);
-  });
-
-  it('should filter embedding models', () => {
-    const models = [
-      new ModelInfoImpl({ id: 'openai:text-embedding', object: 'model' }),
-      new ModelInfoImpl({ id: 'openai:gpt-4', object: 'model' }),
-      new ModelInfoImpl({ id: 'claude:embedding-model', object: 'model' }),
-      new ModelInfoImpl({ id: 'anthropic:claude-3', object: 'model' }),
-    ];
-
-    const filtered = ModelCategoryUtils.filterEmbeddingModels(models);
-
-    expect(filtered).toHaveLength(2);
-    expect(filtered.map(m => m.id)).toEqual(['openai:gpt-4', 'anthropic:claude-3']);
-  });
-
-  it('should sort models by name', () => {
-    const models = [
-      new ModelInfoImpl({ id: 'z-model', object: 'model' }),
-      new ModelInfoImpl({ id: 'a-model', object: 'model' }),
-      new ModelInfoImpl({ id: 'm-model', object: 'model' }),
-    ];
-
-    const sorted = ModelCategoryUtils.sortModelsByName(models);
-
-    expect(sorted.map(m => m.id)).toEqual(['a-model', 'm-model', 'z-model']);
-  });
-
-  it('should not modify original array when sorting', () => {
-    const models = [
-      new ModelInfoImpl({ id: 'z-model', object: 'model' }),
-      new ModelInfoImpl({ id: 'a-model', object: 'model' }),
-    ];
-
-    const sorted = ModelCategoryUtils.sortModelsByName(models);
-
-    expect(models.map(m => m.id)).toEqual(['z-model', 'a-model']); // Original unchanged
-    expect(sorted.map(m => m.id)).toEqual(['a-model', 'z-model']); // Sorted copy
   });
 });

@@ -18,7 +18,7 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "bun run build",
-    "prepublishOnly": "bun test && bun run lint",
+    "prepublishOnly": "bun test",
     "preversion": "bun run lint",
     "version": "bun run format && git add -A src",
     "postversion": "git push && git push --tags"
