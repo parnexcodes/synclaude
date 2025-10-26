@@ -395,6 +395,8 @@ export class SyntheticClaudeApp {
         const updateNow = await this.ui.confirm('Update now?');
         if (updateNow) {
           await this.updater.performUpdate();
+          // performUpdate() will exit the process on successful update
+          return;
         }
       } else {
         // Use coloredSuccess() for better visual appearance without Ink duplication

@@ -32,6 +32,7 @@ export class ConfigManager {
     try {
       // Use fs.readFileSync instead of require to avoid module loading errors
       const fs = require('fs');
+
       if (!fs.existsSync(this.configPath)) {
         // Config file doesn't exist, return defaults
         return AppConfigSchema.parse({});
@@ -41,13 +42,35 @@ export class ConfigManager {
       const result = AppConfigSchema.safeParse(configData);
 
       if (!result.success) {
-        console.warn('Invalid config format, using defaults:', result.error);
+        // Try to preserve firstRunCompleted flag even if other config is invalid
+        const preservedConfig = {
+          firstRunCompleted: configData.firstRunCompleted || false,
+        };
+
+        const fallbackResult = AppConfigSchema.safeParse(preservedConfig);
+
+        if (fallbackResult.success) {
+          return fallbackResult.data;
+        }
+
         return AppConfigSchema.parse({});
       }
 
       return result.data;
     } catch (error) {
-      console.warn('Failed to load config, using defaults:', error);
+      // Try to recover firstRunCompleted from partial config data
+      const fs = require('fs');
+      if (fs.existsSync(this.configPath)) {
+        try {
+          const partialConfig = JSON.parse(fs.readFileSync(this.configPath, 'utf-8'));
+          if (partialConfig.firstRunCompleted === true) {
+            return AppConfigSchema.parse({ firstRunCompleted: true });
+          }
+        } catch {
+          // Recovery failed, use defaults
+        }
+      }
+
       return AppConfigSchema.parse({});
     }
   }

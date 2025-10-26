@@ -188,9 +188,18 @@ export class UpdateManager {
           stdio: 'inherit',
         });
 
-        child.on('close', (code: number | null) => {
+        child.on('close', async (code: number | null) => {
           if (code === 0) {
             console.log('\n' + chalk.green('✓ Update completed successfully!'));
+
+            // Fetch the latest version to confirm
+            try {
+              const latestVersion = await this.fetchLatestVersion();
+              console.log(chalk.dim(`Updated from ${this.currentVersion} to ${latestVersion.version}`));
+            } catch {
+              console.log(chalk.dim(`Updated from version ${this.currentVersion}`));
+            }
+
             console.log(chalk.cyan('Please run ' + chalk.yellow('synclaude') + ' again to use the new version.') + '\n');
 
             // Exit the current process since the new version is installed
