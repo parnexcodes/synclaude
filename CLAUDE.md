@@ -11,46 +11,46 @@ Synclaude is a modern TypeScript/Node.js interactive CLI tool that integrates Sy
 ### Environment Setup
 ```bash
 # Install dependencies
-bun install
+npm install
 
 # Build the project
-bun run build
+npm run build
 
 # Run in development mode
-bun run dev
+npm run dev
 
 # Link for global testing
-bun link
+npm link
 ```
 
 ### Testing
 ```bash
 # Run all tests with coverage
-bun test
+npm test
 
 # Run tests in watch mode
-bun run test:watch
+npm run test:watch
 
 # Run tests with coverage report
-bun run test:coverage
+npm run test:coverage
 
 # Run specific test file
-bun test -- config.test.ts
+npm test -- config.test.ts
 ```
 
 ### Code Quality
 ```bash
 # Format code
-bun run format
+npm run format
 
 # Lint with ESLint
-bun run lint
+npm run lint
 
 # Fix linting issues
-bun run lint:fix
+npm run lint:fix
 
 # Run all quality checks together
-bun run lint && bun test && bun run build
+npm run lint && npm test && npm run build
 ```
 
 ### Local Installation and Testing
@@ -211,4 +211,4 @@ This project uses TypeScript's strict mode with:
 - Zod runtime validation for external data
 
 All APIs are properly typed, and configuration validation occurs at both compile time and runtime.
-- use bun for all commands when doing local development.
+- use npm for all commands when doing local development.

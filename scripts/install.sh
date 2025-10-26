@@ -15,7 +15,8 @@ NC='\033[0m' # No Color
 # Default installation directory
 INSTALL_DIR="$HOME/.local/share/synclaude"
 BIN_DIR="$HOME/.local/bin"
-REPO_URL="https://github.com/parnexcodes/synclaude.git"
+REPO_URL="https://github.com/parnexcodes/synclaude"
+TARBALL_URL="$REPO_URL/archive/main.tar.gz"
 
 # Script variables
 VERBOSE="${VERBOSE:-false}"
@@ -50,27 +51,31 @@ command_exists() {
 
 # Check system dependencies
 check_dependencies() {
-    # Check for Git
-    if ! command_exists git; then
-        error "Git is not installed. Please install Git first."
-        echo "Visit: https://git-scm.com/ or use your package manager:"
-        echo "  macOS: brew install git"
-        echo "  Windows: Download from https://git-scm.com/"
-        echo "  Linux (Ubuntu/Debian): sudo apt-get install git"
-        echo "  Linux (RedHat/CentOS): sudo yum install git"
+    # Check for Node.js and npm
+    if ! command_exists node; then
+        error "Node.js is not installed. Please install Node.js first."
+        echo "Visit: https://nodejs.org/ or use your package manager:"
+        echo "  macOS: brew install node"
+        echo "  Windows: Download from https://nodejs.org/"
+        echo "  Linux (Ubuntu/Debian): sudo apt-get install nodejs npm"
+        echo "  Linux (RedHat/CentOS): sudo yum install nodejs npm"
         exit 1
     fi
 
-    # Check for Bun
-    if ! command_exists bun; then
-        error "Bun is not installed. Please install Bun first."
-        echo "Visit: https://bun.sh/ or use the installation command:"
-        echo "  curl -fsSL https://bun.sh/install | bash"
-        echo ""
-        echo "Or use your package manager:"
-        echo "  macOS: brew install bun"
-        echo "  Windows: powershell -c \"irm bun.sh/install.ps1 | iex\""
-        echo "  Linux: curl -fsSL https://bun.sh/install | bash"
+    if ! command_exists npm; then
+        error "npm is not installed. Please install npm first."
+        echo "npm usually comes with Node.js. If not available:"
+        echo "  Linux (Ubuntu/Debian): sudo apt-get install npm"
+        echo "  Linux (RedHat/CentOS): sudo yum install npm"
+        exit 1
+    fi
+
+    # Check for curl or wget for downloading
+    if ! command_exists curl && ! command_exists wget; then
+        error "Neither curl nor wget is available for downloading."
+        echo "Please install one of them:"
+        echo "  curl: sudo apt-get install curl (Ubuntu/Debian)"
+        echo "  wget: sudo apt-get install wget (Ubuntu/Debian)"
         exit 1
     fi
 
@@ -92,21 +97,33 @@ install_package() {
     rm -rf "$INSTALL_DIR"
     mkdir -p "$INSTALL_DIR"
 
-    # Clone repository and build locally
+    # Download and extract repository
     cd "$INSTALL_DIR"
     progress
-    if git clone "$REPO_URL" . >/dev/null 2>&1; then
-        progress
-        if bun install >/dev/null 2>&1 && bun run build >/dev/null 2>&1; then
+    if command_exists curl; then
+        if curl -sL "$TARBALL_URL" | tar -xz --strip-components=1 >/dev/null 2>&1; then
             progress
-            ln -sf "$INSTALL_DIR/dist/cli/index.js" "$BIN_DIR/synclaude"
-            chmod +x "$BIN_DIR/synclaude"
         else
-            error "Failed to install dependencies or build project"
+            error "Failed to download repository with curl"
             exit 1
         fi
+    elif command_exists wget; then
+        if wget -qO- "$TARBALL_URL" | tar -xz --strip-components=1 >/dev/null 2>&1; then
+            progress
+        else
+            error "Failed to download repository with wget"
+            exit 1
+        fi
+    fi
+
+    # Install dependencies and build
+    progress
+    if npm install --silent >/dev/null 2>&1 && npm run build >/dev/null 2>&1; then
+        progress
+        ln -sf "$INSTALL_DIR/dist/cli/index.js" "$BIN_DIR/synclaude"
+        chmod +x "$BIN_DIR/synclaude"
     else
-        error "Failed to clone repository"
+        error "Failed to install dependencies or build project"
         exit 1
     fi
 }
@@ -205,8 +222,8 @@ case "${1:-}" in
         echo "  --verbose, -v   Show detailed installation output"
         echo ""
         echo "This script will:"
-        echo "1. Check for Bun installation"
-        echo "2. Install the synclaude package"
+        echo "1. Check for Node.js and npm installation"
+        echo "2. Download and install the synclaude package"
         echo "3. Set up PATH if needed"
         echo "4. Verify the installation"
         exit 0

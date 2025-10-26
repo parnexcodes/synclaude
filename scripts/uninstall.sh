@@ -81,8 +81,8 @@ confirm_uninstall() {
 uninstall_global() {
     log "Removing global synclaude package..."
 
-    if bun pm ls -g synclaude >/dev/null 2>&1; then
-        if bun uninstall -g synclaude; then
+    if npm list -g synclaude >/dev/null 2>&1; then
+        if npm uninstall -g synclaude; then
             success "Global package removed"
         else
             warn "Failed to remove global package (might not be globally installed)"
@@ -92,15 +92,15 @@ uninstall_global() {
     fi
 }
 
-# Remove bun link
-remove_bun_link() {
-    if command_exists bun && [ -L "$(which synclaude 2>/dev/null)" ]; then
-        log "Removing bun link..."
+# Remove npm link
+remove_npm_link() {
+    if command_exists npm && [ -L "$(which synclaude 2>/dev/null)" ]; then
+        log "Removing npm link..."
         # Remove the symlink directly
         SYNCLAUDE_PATH=$(which synclaude)
         if [ -L "$SYNCLAUDE_PATH" ]; then
             rm -f "$SYNCLAUDE_PATH"
-            success "Bun link removed"
+            success "Npm link removed"
         fi
     fi
 }
@@ -181,7 +181,7 @@ main() {
 
     # Uninstallation steps
     uninstall_global
-    remove_bun_link
+    remove_npm_link
     uninstall_local
     remove_symlink
     remove_config

@@ -23,8 +23,6 @@ synclaude is a modern TypeScript/Node.js application that provides a seamless in
 ### Prerequisites
 
 - Node.js 18+ and npm installed
-- bun installed
-- git installed
 - Synthetic API key (get one from [synthetic.new](https://synthetic.new))
 - Claude Code installed (get from [claude.com/product/claude-code](https://claude.com/product/claude-code))
 
@@ -45,11 +43,13 @@ npm install -g synclaude
 #### Option 3: Local Development
 
 ```bash
-git clone https://github.com/parnexcodes/synclaude.git
-cd synclaude
-bun install
-bun run build
-bun link
+npm install -g synclaude
+# Or download the source and run:
+curl -sSL https://github.com/parnexcodes/synclaude/archive/main.tar.gz | tar -xz
+cd synclaude-main
+npm install
+npm run build
+npm link
 ```
 
 ### Uninstallation
@@ -66,8 +66,8 @@ curl -sSL https://raw.githubusercontent.com/parnexcodes/synclaude/main/scripts/u
 # If installed globally via npm
 npm uninstall -g synclaude
 
-# If installed locally via bun link
-bun unlink synclaude
+# If installed locally via npm link
+npm unlink -g synclaude
 
 # Remove configuration and cache
 rm -rf ~/.config/synclaude
@@ -175,32 +175,32 @@ export SYNTHETIC_CACHE_DURATION=24
 ```bash
 git clone https://github.com/parnexcodes/synclaude.git
 cd synclaude
-bun install
+npm install
 ```
 
 #### Development Commands
 
 ```bash
 # Build the project
-bun run build
+npm run build
 
 # Run in development mode
-bun run dev
+npm run dev
 
 # Run tests
-bun test
+npm test
 
 # Run tests with coverage
-bun run test:coverage
+npm test:coverage
 
 # Lint code
-bun run lint
+npm run lint
 
 # Format code
-bun run format
+npm run format
 
 # Full development cycle
-bun run lint && bun test && bun run build
+npm run lint && npm test && npm run build
 ```
 
 #### Project Structure
