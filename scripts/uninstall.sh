@@ -17,6 +17,9 @@ INSTALL_DIR="$HOME/.local/share/synclaude"
 CONFIG_DIR="$HOME/.config/synclaude"
 BIN_DIR="$HOME/.local/bin"
 
+# Force uninstall flag
+FORCE_UNINSTALL=false
+
 # Helper functions
 log() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -48,12 +51,29 @@ confirm_uninstall() {
     echo "  - Configuration files in ~/.config/synclaude"
     echo "  - Cache files in ~/.local/share/synclaude"
     echo ""
-    read -p "Are you sure you want to continue? [y/N] " -n 1 -r
-    echo ""
 
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log "Uninstallation cancelled"
-        exit 0
+    # Check if force flag is set or running in interactive mode
+    if [ "$FORCE_UNINSTALL" = false ]; then
+        if [ ! -t 0 ]; then
+            warn "Non-interactive mode detected. Add '--force' flag to proceed."
+            echo ""
+            echo "To uninstall, run:"
+            echo "  curl -sSL ... | bash -s -- --force"
+            echo "Or download and run locally:"
+            echo "  curl -sSL ... > uninstall.sh && chmod +x uninstall.sh && ./uninstall.sh"
+            echo ""
+            exit 1
+        fi
+
+        read -p "Are you sure you want to continue? [y/N] " -n 1 -r
+        echo ""
+
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log "Uninstallation cancelled"
+            exit 0
+        fi
+    else
+        log "Force uninstall mode - skipping confirmation"
     fi
 }
 
@@ -176,28 +196,52 @@ main() {
     echo ""
 }
 
+# Parse command line arguments
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --force)
+                FORCE_UNINSTALL=true
+                shift
+                ;;
+            --help|-h)
+                echo "Synclaude Uninstallation Script"
+                echo "Usage: $0 [options]"
+                echo ""
+                echo "Options:"
+                echo "  --force        Skip confirmation prompt"
+                echo "  --help, -h     Show this help message"
+                echo ""
+                echo "This script will:"
+                echo "1. Remove the synclaude package (both global and local)"
+                echo "2. Remove configuration files"
+                echo "3. Remove cache files"
+                echo "4. Clean up symlinks"
+                echo ""
+                echo "Usage examples:"
+                echo "  curl -sSL ... | bash                    # Interactive mode"
+                echo "  curl -sSL ... | bash -s -- --force       # Non-interactive"
+                echo "  ./uninstall.sh --force                  # Local interactive bypass"
+                exit 0
+                ;;
+            *)
+                error "Unknown option: $1"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+}
+
 # Handle script arguments
-case "${1:-}" in
-    --help|-h)
-        echo "Synclaude Uninstallation Script"
-        echo "Usage: $0 [options]"
-        echo ""
-        echo "Options:"
-        echo "  --help, -h    Show this help message"
-        echo ""
-        echo "This script will:"
-        echo "1. Remove the synclaude package (both global and local)"
-        echo "2. Remove configuration files"
-        echo "3. Remove cache files"
-        echo "4. Clean up symlinks"
-        exit 0
-        ;;
-    "")
-        main
-        ;;
-    *)
-        error "Unknown option: $1"
-        echo "Use --help for usage information"
-        exit 1
-        ;;
-esac
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # Called directly (not sourced)
+    parse_args "$@"
+    main
+else
+    # Script is being piped in, check for --force in arguments
+    if [[ "$*" == *"--force"* ]]; then
+        FORCE_UNINSTALL=true
+    fi
+    main
+fi
