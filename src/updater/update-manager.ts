@@ -3,6 +3,7 @@ import { writeFile, readFile } from 'fs/promises';
 import { join } from 'path';
 import { homedir } from 'os';
 import { readFileSync } from 'fs';
+import chalk from 'chalk';
 
 export interface VersionInfo {
   version: string;
@@ -189,21 +190,24 @@ export class UpdateManager {
 
         child.on('close', (code: number | null) => {
           if (code === 0) {
-            console.info('Update completed successfully');
-            resolve(true);
+            console.log('\n' + chalk.green('✓ Update completed successfully!'));
+            console.log(chalk.cyan('Please run ' + chalk.yellow('synclaude') + ' again to use the new version.') + '\n');
+
+            // Exit the current process since the new version is installed
+            process.exit(0);
           } else {
-            console.error('Update failed');
+            console.error(chalk.red('✗ Update failed'));
             resolve(false);
           }
         });
 
         child.on('error', (error: Error) => {
-          console.error('Update error:', error);
+          console.error(chalk.red('✗ Update error:'), error);
           resolve(false);
         });
       });
     } catch (error) {
-      console.error('Failed to perform update:', error);
+      console.error(chalk.red('✗ Failed to perform update:'), error);
       return false;
     }
   }
