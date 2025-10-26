@@ -1,14 +1,20 @@
 import { Command } from 'commander';
 import { SyntheticClaudeApp } from '../core/app';
 import { ConfigManager } from '../config';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 export function createProgram(): Command {
   const program = new Command();
 
+  // Read version from package.json
+  const packageJsonPath = join(__dirname, '../../package.json');
+  const packageVersion = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version;
+
   program
     .name('synclaude')
     .description('Interactive model selection tool for Claude Code with Synthetic AI models')
-    .version('1.0.0');
+    .version(packageVersion);
 
   program
     .option('-m, --model <model>', 'Use specific model (skip selection)')
