@@ -2,6 +2,7 @@ import axios from 'axios';
 import { writeFile, readFile } from 'fs/promises';
 import { join } from 'path';
 import { homedir } from 'os';
+import { readFileSync } from 'fs';
 
 export interface VersionInfo {
   version: string;
@@ -30,7 +31,15 @@ export class UpdateManager {
   constructor(options: UpdateOptions = {}) {
     this.versionFile = join(homedir(), '.config', 'synclaude', 'version.json');
     this.checkUrl = options.checkUrl || 'https://api.github.com/repos/parnexcodes/synclaude/releases/latest';
-    this.currentVersion = '1.0.0'; // This should come from package.json
+
+    // Read current version from package.json
+    try {
+      const packageJsonPath = join(__dirname, '../../package.json');
+      this.currentVersion = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version;
+    } catch (error) {
+      // Fallback to hardcoded version if we can't read package.json
+      this.currentVersion = '1.2.0';
+    }
   }
 
   async checkForUpdates(): Promise<UpdateCheckResult> {
