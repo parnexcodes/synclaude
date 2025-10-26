@@ -23,6 +23,8 @@ synclaude is a modern TypeScript/Node.js application that provides a seamless in
 ### Prerequisites
 
 - Node.js 18+ and npm installed
+- bun installed
+- git installed
 - Synthetic API key (get one from [synthetic.new](https://synthetic.new))
 - Claude Code installed (get from [claude.com/product/claude-code](https://claude.com/product/claude-code))
 
@@ -173,7 +175,7 @@ export SYNTHETIC_CACHE_DURATION=24
 ```bash
 git clone https://github.com/parnexcodes/synclaude.git
 cd synclaude
-npm install
+bun install
 ```
 
 #### Development Commands
