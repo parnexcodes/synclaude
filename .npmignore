@@ -1,0 +1,76 @@
+# Keep most of .gitignore but allow dist/ for npm package
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage
+*.lcov
+
+# Test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional caches
+.npm
+.eslintcache
+.stylelintcache
+
+# Build artifacts (keep dist for npm package!)
+# dist is included in package.json files array
+
+# Environment files
+.env
+.env.*
+
+# Cache directories
+.cache
+.parcel-cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Output files
+*.tgz
+.yarn-integrity
+
+# IDE files
+.vscode-test
+
+# Test files
+test/
+*.test.ts
+*.spec.ts
+
+# Source TypeScript files (optional, but keep dist for npm)
+src/
+tsconfig.json
+jest.config.js
+.eslintrc.*
+.prettierrc.*
+
+# Development files
+CLAUDE.md
+.gitignore
+.pnp.*
