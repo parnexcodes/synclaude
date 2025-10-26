@@ -12,7 +12,6 @@ synclaude is a modern TypeScript/Node.js application that provides a seamless in
 - **Interactive Model Selection**: Rich terminal UI for browsing and selecting models
 - **Smart Search**: Search models by name, provider, or capabilities
 - **Persistent Configuration**: Save your preferred model choices
-- **Auto-Update**: Built-in update checking and management
 - **Easy Installation**: One-line installer with npm support
 - **System Health**: Built-in diagnostic tools
 - **Well Tested**: Comprehensive Jest test suite
@@ -156,7 +155,26 @@ Synclaude stores configuration in `~/.config/synclaude/config.json`. Key options
 - `modelsApiUrl`: Models endpoint URL
 - `cacheDurationHours`: Model cache duration (1-168 hours)
 - `selectedModel`: Last selected model
-- `autoUpdateCheck`: Enable automatic update checking
+- `firstRunCompleted`: Whether first-time setup has been completed
+
+### Updates
+
+Synclaude follows standard npm package management conventions. Instead of built-in auto-updates, you manage updates manually:
+
+```bash
+
+# Update to latest version
+npm update -g synclaude
+
+# Check current version
+synclaude --version
+```
+
+This approach provides:
+- **Full control** over when updates happen
+- **Standard npm workflow** that developers are familiar with
+- **No update-related bugs or complexity**
+- **Rollback capability** if needed (`npm install -g synclaude@specific-version`)
 
 ### Environment Variables
 
@@ -214,7 +232,6 @@ synclaude/
 │   ├── models/        # Data models and API interfaces
 │   ├── ui/            # Terminal UI components (Ink)
 │   ├── launcher/      # Claude Code launcher
-│   ├── updater/       # Update management
 │   ├── api/           # HTTP client (axios)
 │   └── utils/         # Shared utilities
 ├── tests/             # Jest tests

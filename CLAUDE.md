@@ -79,14 +79,13 @@ The application follows a modular TypeScript architecture with clear separation 
 4. **Model Management (`src/models/`)** - Handles fetching, caching, and categorizing models from Synthetic API
 5. **User Interface (`src/ui/`)** - React-based terminal UI components using Ink library
 6. **Launcher (`src/launcher/`)** - Manages Claude Code execution with proper environment variable setup
-7. **Updater (`src/updater/`)** - Automatic update checking and installation mechanism
-8. **API Client (`src/api/`)** - Axios-based HTTP client with proper error handling
+7. **API Client (`src/api/`)** - Axios-based HTTP client with proper error handling
 
 ### Key Data Flows
 
 1. **Model Selection Flow**: CLI → App → ModelManager.fetch_models() → UI.selection → Launcher.launch()
 2. **Configuration Flow**: CLI → App → ConfigManager → UI prompts → Config persistence
-3. **Update Flow**: App.updater() → UpdateManager.check() → version comparison → install
+3. **Manual Update Flow**: Users update via `npm update -g synclaude` (standard npm package management)
 
 ### Configuration Architecture
 
