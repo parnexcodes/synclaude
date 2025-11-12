@@ -376,7 +376,9 @@ export class SyntheticClaudeApp {
         if (success) {
           targetModel = this.configManager.getSavedModel();
         } else {
-          this.ui.info('Continuing with current model');
+          const savedModel = this.configManager.getSavedModel();
+          this.ui.info(`Model selection cancelled. Using saved model: ${savedModel}`);
+          targetModel = savedModel;
         }
       }
     } else {
