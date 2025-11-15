@@ -23,6 +23,15 @@ export class ClaudeLauncher {
 
   async launchClaudeCode(options: LaunchOptions): Promise<LaunchResult> {
     try {
+      // Secondary check: Ensure Claude Code is installed before attempting to launch
+      const isInstalled = await this.checkClaudeInstallation();
+      if (!isInstalled) {
+        return {
+          success: false,
+          error: 'Claude Code is not installed or not found in PATH',
+        };
+      }
+
       // Set up environment variables for Claude Code
       const env = {
         ...process.env,

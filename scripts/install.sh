@@ -79,6 +79,39 @@ check_dependencies() {
         exit 1
     fi
 
+    # Check for Claude Code installation
+    if ! command_exists claude; then
+        warn "Claude Code is not installed but is required for synclaude to work."
+        echo ""
+        echo "Please install Claude Code first:"
+        echo ""
+
+        # Detect platform and show appropriate instructions
+        case "$(uname -s)" in
+            Darwin*|Linux*)
+                echo "Recommended installation:"
+                echo "  curl -fsSL https://claude.ai/install.sh | bash"
+                echo ""
+                echo "Alternative with Homebrew (if available):"
+                echo "  brew install --cask claude-code"
+                echo ""
+                ;;
+            CYGWIN*|MINGW*|MSYS*)
+                echo "On Windows:"
+                echo "  irm https://claude.ai/install.ps1 | iex"
+                echo ""
+                ;;
+            *)
+                echo "Via npm (not recommended):"
+                echo "  npm install -g @anthropic-ai/claude-code"
+                echo ""
+                ;;
+        esac
+
+        echo "After installing Claude Code, run this script again."
+        exit 1
+    fi
+
  progress
 }
 

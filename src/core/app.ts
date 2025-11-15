@@ -61,6 +61,13 @@ export class SyntheticClaudeApp {
       return;
     }
 
+    // Check Claude Code installation early
+    const claudeInstalled = await this.launcher.checkClaudeInstallation();
+    if (!claudeInstalled) {
+      this.showClaudeInstallationInstructions();
+      return;
+    }
+
     // Handle continue flag
     if (options.continue) {
       await this.continueSession(options);
@@ -282,6 +289,20 @@ export class SyntheticClaudeApp {
       if (version) {
         this.ui.info(`Claude Code version: ${version}`);
       }
+    } else {
+      // Show installation instructions if Claude Code is not found
+      this.ui.info('');
+      this.ui.coloredInfo('To install Claude Code:', ['cyan']);
+
+      const platform = process.platform;
+      if (platform === 'darwin' || platform === 'linux') {
+        this.ui.info('  curl -fsSL https://claude.ai/install.sh | bash');
+        this.ui.info('  # or with Homebrew: brew install --cask claude-code');
+      } else if (platform === 'win32') {
+        this.ui.info('  irm https://claude.ai/install.ps1 | iex');
+      }
+      this.ui.info('  # or via npm (not recommended): npm install -g @anthropic-ai/claude-code');
+      this.ui.info('');
     }
 
     // Check configuration
@@ -344,6 +365,34 @@ export class SyntheticClaudeApp {
 
     this.ui.error('No model selected. Run "synclaude model" to select a model.');
     return null;
+  }
+
+  private showClaudeInstallationInstructions(): void {
+    this.ui.error('Claude Code is not installed or not found in PATH');
+    this.ui.info('');
+    this.ui.info('Please install Claude Code first:');
+    this.ui.info('');
+
+    // Detect platform and show appropriate instructions
+    const platform = process.platform;
+    if (platform === 'darwin' || platform === 'linux') {
+      this.ui.coloredInfo('On Linux/Mac:', ['cyan']);
+      this.ui.info('  curl -fsSL https://claude.ai/install.sh | bash');
+      this.ui.info('');
+      this.ui.coloredInfo('Alternative with Homebrew:', ['cyan']);
+      this.ui.info('  brew install --cask claude-code');
+      this.ui.info('');
+    } else if (platform === 'win32') {
+      this.ui.coloredInfo('On Windows:', ['cyan']);
+      this.ui.info('  irm https://claude.ai/install.ps1 | iex');
+      this.ui.info('');
+    }
+
+    this.ui.coloredInfo('Via npm (not recommended):', ['cyan']);
+    this.ui.info('  npm install -g @anthropic-ai/claude-code');
+    this.ui.info('');
+
+    this.ui.highlightInfo('Then try running synclaude again.', ['synclaude']);
   }
 
   private async launchClaudeCode(model: string, options: LaunchOptions): Promise<void> {
